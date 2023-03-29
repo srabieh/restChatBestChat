@@ -91,6 +91,14 @@ int main(void) {
     res.set_content(resultJSON, "text/json");
   });
   
+  svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
+	res.set_header("Access-Control-Allow-Origin","*");
+	for (auto listUser: messageMap ) {
+		string listUsername = listUser.first;
+		cout<<"this user is " << listUsername << endl;
+	}
+  });
+  
   cout << "Server listening on port " << port << endl;
   svr.listen("0.0.0.0", port);
 
