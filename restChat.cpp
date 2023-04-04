@@ -43,6 +43,10 @@ int main(void) {
   Server svr;
   int nextUser=0;
   map<string,vector<string>> messageMap;
+  /*maybe for later
+  map<string, string> onlineUsers;
+  */
+  
 	
   /* "/" just returnsAPI name */
   svr.Get("/", [](const Request & /*req*/, Response &res) {
@@ -65,6 +69,9 @@ int main(void) {
     	// Add user to messages map
     	messageMap[username]=empty;
     	result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
+    	/*maybe for later 
+    	onlineUsers[username] = "user logged in";
+    	*/
     }
     res.set_content(result, "text/json");
   });
@@ -84,6 +91,7 @@ int main(void) {
     res.set_content(result, "text/json");
   });
   
+  
    svr.Get(R"(/chat/fetch/(.*))", [&](const Request& req, Response& res) {
     string username = req.matches[1];
     res.set_header("Access-Control-Allow-Origin","*");
@@ -91,14 +99,24 @@ int main(void) {
     res.set_content(resultJSON, "text/json");
   });
   
-  svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
-	res.set_header("Access-Control-Allow-Origin","*");
-	for (auto listUser: messageMap ) {
-		string listUsername = listUser.first;
-		cout<<"this user is " << listUsername << endl;
-	}
-  });
   
+//new stuff: Sam & Dylan
+svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
+	res.set_header("Access-Control-Allow-Origin","*");
+	bool start = true;
+	string onlineUsersJSON = "{\"onlineUsers\":[";
+	for (auto const &listUser: messageMap)
+	{
+		if (not start) onlineUsersJSON += ",";
+		onlineUsersJSON += "\"" + listUser.first + "\"";
+		start = false;
+	}
+	onlineUsersJSON+="]}";
+	res.set_content(onlineUsersJSON, "text/json");
+});
+  
+  
+  //back to skon
   cout << "Server listening on port " << port << endl;
   svr.listen("0.0.0.0", port);
 

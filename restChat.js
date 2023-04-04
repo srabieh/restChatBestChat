@@ -2,16 +2,17 @@
 // Jim Skon 2022
 // Kenyon College
 
-var baseUrl = 'http://44.201.131.63:5005';
+var baseUrl = 'http://34.229.136.9:5005';
 var state="off";
 var myname="";
 var inthandle;
+var usersLoggedIn;
 
 /* Start with text input and status hidden */
 document.getElementById('chatinput').style.display = 'none';
 document.getElementById('status').style.display = 'none';
 document.getElementById('leave').style.display = 'none';
-// Action if they push the join button
+// // Action if they push the join button
 document.getElementById('login-btn').addEventListener("click", (e) => {
 	join();
 })
@@ -101,6 +102,32 @@ function fetchMessage() {
         {console.log("Server appears down");}
     })  	
 }
+
+
+function completeGetUsers(result) {
+	users = result["onlineUsers"];
+	document.getElementById('onlineUsers').innerHTML="";
+	users.forEach(function(u, i) {
+		console.log("u is" + u);
+		thisUser = u;
+		document.getElementById('onlineUsers').innerHTML+=
+		"<li>" + thisUser + "</li>";
+		console.log("thisUser is " + thisUser);
+	});
+}
+
+function getUsers() {
+	fetch(baseUrl+'/chat/list', {
+		method: 'get'
+	})
+	.then (response => response.json() )
+    .then (data =>completeGetUsers(data))
+    .catch(error => {
+        {console.log("Something went wrong:"+error);}
+    })  
+}
+
+
 /* Functions to set up visibility of sections of the display */
 function startSession(name){
     state="on";
@@ -113,6 +140,7 @@ function startSession(name){
     document.getElementById('leave').style.display = 'block';
     /* Check for messages every 500 ms */
     inthandle=setInterval(fetchMessage,500);
+    usersLoggedIn=setInterval(getUsers,2000);
 }
 
 function leaveSession(){
@@ -125,6 +153,7 @@ function leaveSession(){
     document.getElementById('status').style.display = 'none';
     document.getElementById('leave').style.display = 'none';
 	clearInterval(inthandle);
+	clearInterval(usersLoggedIn);
 }
 
 
