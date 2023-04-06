@@ -2,7 +2,7 @@
 // Jim Skon 2022
 // Kenyon College
 
-var baseUrl = 'http://34.229.136.9:5005';
+var baseUrl = 'http://44.201.131.63:5005';
 var state="off";
 var myname="";
 var inthandle;
@@ -127,6 +127,17 @@ function getUsers() {
     })  
 }
 
+function leave() {
+	console.log(myname + " is the user being passed to /chat/leave/");
+	fetch(baseUrl+'/chat/leave/'+myname, {
+		method: 'get'
+	})
+	.then (console.log("leave request ran"))
+	.catch(error => {
+		{console.log("Something went wrong:" + error);}
+	})
+}
+
 
 /* Functions to set up visibility of sections of the display */
 function startSession(name){
@@ -144,8 +155,9 @@ function startSession(name){
 }
 
 function leaveSession(){
+	console.log("leaving session...");
     state="off";
-    
+    leave();
     document.getElementById('yourname').value = "";
     document.getElementById('register').style.display = 'block';
     document.getElementById('user').innerHTML = "";

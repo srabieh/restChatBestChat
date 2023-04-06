@@ -43,9 +43,7 @@ int main(void) {
   Server svr;
   int nextUser=0;
   map<string,vector<string>> messageMap;
-  /*maybe for later
   map<string, string> onlineUsers;
-  */
   
 	
   /* "/" just returnsAPI name */
@@ -68,6 +66,7 @@ int main(void) {
     } else {
     	// Add user to messages map
     	messageMap[username]=empty;
+		onlineUsers[username]="user logged in";
     	result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
     	/*maybe for later 
     	onlineUsers[username] = "user logged in";
@@ -105,7 +104,7 @@ svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
 	res.set_header("Access-Control-Allow-Origin","*");
 	bool start = true;
 	string onlineUsersJSON = "{\"onlineUsers\":[";
-	for (auto const &listUser: messageMap)
+	for (auto const &listUser: onlineUsers)
 	{
 		if (not start) onlineUsersJSON += ",";
 		onlineUsersJSON += "\"" + listUser.first + "\"";
@@ -113,6 +112,25 @@ svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
 	}
 	onlineUsersJSON+="]}";
 	res.set_content(onlineUsersJSON, "text/json");
+});
+
+svr.Get(R"(/chat/leave/(.*))", [&](const Request& req, Response& res) {
+	string result;
+	res.set_header("Access-Control-Allow-Origin","*");
+	string username = req.matches[1];
+	cout << username << " is the username to be erased" << endl;
+	onlineUsers.erase(username);
+	if (!onlineUsers.count(username)) {
+		result = "{\"status\":\"success\"}";
+		cout << username << " leaves" << endl;
+		for (auto checkForUsers: onlineUsers) {
+			cout << checkForUsers.first << " logged in" << endl;
+		}
+	} else {
+		result = "{\"status\":\"failure\"}";
+	}
+	res.set_content(result, "text/json");
+	
 });
   
   
