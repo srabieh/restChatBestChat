@@ -2,7 +2,7 @@
 // Jim Skon 2022
 // Kenyon College
 
-var baseUrl = 'http://44.201.131.63:5005';
+var baseUrl = 'http://34.229.136.9:5005';
 var state="off";
 var myname="";
 var inthandle;
@@ -25,8 +25,7 @@ document.getElementById('save-changes').addEventListener("click", register);
 // Watch for enter on message box
 document.getElementById('message').addEventListener("keydown", (e)=> {
     if (e.code == "Enter") {
-	sendText();
-	document.getElementById('message').value = "";
+		sendText();
     }   
 });
 
@@ -95,7 +94,8 @@ function join() {
 function completeSend(results) {
 	var status = results['status'];
 	if (status == "success") {
-		console.log("Send succeeded")
+		console.log("Send succeeded");
+		document.getElementById('message').value = "";
 	} else {
 		alert("Error sending message!");
 	}
