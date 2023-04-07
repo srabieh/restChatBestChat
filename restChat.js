@@ -20,11 +20,13 @@ document.getElementById('login-btn').addEventListener("click", (e) => {
 /* Set up buttons */
 document.getElementById('leave-btn').addEventListener("click", leaveSession);
 document.getElementById('send-btn').addEventListener("click", sendText);
+document.getElementById('save-changes').addEventListener("click", register);
 
 // Watch for enter on message box
 document.getElementById('message').addEventListener("keydown", (e)=> {
     if (e.code == "Enter") {
 	sendText();
+	document.getElementById('message').value = "";
     }   
 });
 
@@ -32,11 +34,43 @@ document.getElementById('message').addEventListener("keydown", (e)=> {
 // Call function on page exit
 window.onbeforeunload = leaveSession;
 
+function completeRegister(results) {
+	var status = results['status'];
+	if (status == "name taken") {
+		alert("Failed to Register User: username taken");
+		return;
+	}
+	else if (status == "email taken") {
+		alert("Failed to Register User: email taken");
+		return;
+	}
+	else if (status == "password short") {
+		alert("Failed to Register User: password too short");
+		return;
+	}
+	var user = results['user'];
+	console.log("Register:"+user);
+}
+
+function register() {
+	myname = document.getElementById('orangeForm-name').value;
+	mypass = document.getElementById('orangeForm-pass').value;
+	myemail = document.getElementById('orangeForm-email').value;
+	fetch(baseUrl+'/chat/register/'+ myname + '/' + mypass + '/' + myemail, {
+		method: 'get'
+	})
+	.then (response => response.json() )
+	.then (data => completeRegister(data))
+	.catch(error => {
+		{alert("Error: Something went wrong:"+error);}
+	})
+}
+
 
 function completeJoin(results) {
 	var status = results['status'];
 	if (status != "success") {
-		alert("Username already exists!");
+		alert("Username or Password Incorrect!");
 		leaveSession();
 		return;
 	}
@@ -47,7 +81,8 @@ function completeJoin(results) {
 
 function join() {
 	myname = document.getElementById('yourname').value;
-	fetch(baseUrl+'/chat/join/'+myname, {
+	mypass = document.getElementById('yourpass').value;
+	fetch(baseUrl+'/chat/join/'+myname+'/'+mypass, {
         method: 'get'
     })
     .then (response => response.json() )
@@ -70,6 +105,7 @@ function completeSend(results) {
 function sendText() {
     var message = document.getElementById('message').value;
     console.log("Send: "+myname+":"+message);
+	document.getElementById('message').value = "";
 	fetch(baseUrl+'/chat/send/'+myname+'/'+message, {
         method: 'get'
     })
@@ -108,11 +144,9 @@ function completeGetUsers(result) {
 	users = result["onlineUsers"];
 	document.getElementById('onlineUsers').innerHTML="";
 	users.forEach(function(u, i) {
-		console.log("u is" + u);
 		thisUser = u;
 		document.getElementById('onlineUsers').innerHTML+=
 		"<li>" + thisUser + "</li>";
-		console.log("thisUser is " + thisUser);
 	});
 }
 

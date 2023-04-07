@@ -44,6 +44,13 @@ int main(void) {
   int nextUser=0;
   map<string,vector<string>> messageMap;
   map<string, string> onlineUsers;
+  map<string, string> allUsers;
+  map<string, string> allUsersEmails;
+  
+  allUsers["ooniTest"] = "cornflower";
+  allUsers["samTest"] = "yes";
+  allUsers["jimTest"] = "skon";
+  
   
 	
   /* "/" just returnsAPI name */
@@ -53,26 +60,62 @@ int main(void) {
   });
 
 
-  svr.Get(R"(/chat/join/(.*))", [&](const Request& req, Response& res) {
+  svr.Get(R"(/chat/join/(.*)/(.*))", [&](const Request& req, Response& res) {
     res.set_header("Access-Control-Allow-Origin","*");
     string username = req.matches[1];
+	string password = req.matches[2];
     string result;
     vector<string> empty;
     cout << username << " joins" << endl;
     
     // Check if user with this name exists
-    if (messageMap.count(username)) {
-    	result = "{\"status\":\"exists\"}";
+    if (password == allUsers[username]) {
+		// Add user to messages map
+			messageMap[username]=empty;
+			onlineUsers[username]="user logged in";
+			result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
+    	
     } else {
-    	// Add user to messages map
-    	messageMap[username]=empty;
-		onlineUsers[username]="user logged in";
-    	result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
-    	/*maybe for later 
-    	onlineUsers[username] = "user logged in";
-    	*/
+		// if username or password incorrect, do not login user
+    	result = "{\"status\":\"failure\"}";
     }
     res.set_content(result, "text/json");
+  });
+  
+  svr.Get(R"(/chat/register/(.*)/(.*)/(.*))", [&](const Request& req, Response& res) {
+	res.set_header("Access-Control-Allow-Origin","*");
+    string username = req.matches[1];
+	string password = req.matches[2];
+	string email = req.matches[3];
+	cout << username << " " << password << " " << email << endl;
+	string result;
+	
+	// ADD: make it so you can't register as a user that already exists
+	
+	bool isEmailTaken = false;
+	
+	for (auto checkEmails: allUsersEmails) {
+		string currEmail = allUsersEmails[checkEmails.first];
+		if (email==currEmail) {
+			isEmailTaken=true;
+			break;
+		}
+	}
+	
+	
+	if (allUsers.count(username)) {
+    	result = "{\"status\":\"name taken\"}";
+	} else if (isEmailTaken){
+		result= "{\"status\":\"email taken\"}";
+	} else if (password.length() < 6) {
+		result = "{\"status\":\"password short\"}";
+	} else {
+		allUsers[username] = password;
+		allUsersEmails[username] = email;
+		result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
+	}
+    res.set_content(result, "text/json");
+	
   });
 
    svr.Get(R"(/chat/send/(.*)/(.*))", [&](const Request& req, Response& res) {
@@ -101,11 +144,12 @@ int main(void) {
   
 //new stuff: Sam & Dylan
 svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
+	
 	res.set_header("Access-Control-Allow-Origin","*");
 	bool start = true;
 	string onlineUsersJSON = "{\"onlineUsers\":[";
 	for (auto const &listUser: onlineUsers)
-	{
+	{		
 		if (not start) onlineUsersJSON += ",";
 		onlineUsersJSON += "\"" + listUser.first + "\"";
 		start = false;
