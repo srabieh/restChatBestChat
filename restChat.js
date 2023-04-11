@@ -98,6 +98,7 @@ function completeSend(results) {
 	var status = results['status'];
 	if (status == "success") {
 		console.log("Send succeeded")
+		document.getElementById('message').value = ""
 	} else {
 		alert("Error sending message!");
 	}
