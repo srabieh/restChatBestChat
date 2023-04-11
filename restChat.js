@@ -2,7 +2,8 @@
 // Jim Skon 2022
 // Kenyon College
 
-var baseUrl = 'http://44.201.131.63:5005';
+var serverIP = "http://44.201.131.63"
+var baseUrl = serverIP + ':5005';
 var state="off";
 var myname="";
 var inthandle;
@@ -21,6 +22,7 @@ document.getElementById('login-btn').addEventListener("click", (e) => {
 document.getElementById('leave-btn').addEventListener("click", leaveSession);
 document.getElementById('send-btn').addEventListener("click", sendText);
 document.getElementById('save-changes').addEventListener("click", register);
+document.getElementById('send-invite').addEventListener("click",sendInvite);
 
 // Watch for enter on message box
 document.getElementById('message').addEventListener("keydown", (e)=> {
@@ -160,6 +162,22 @@ function getUsers() {
         {console.log("Something went wrong:"+error);}
     })  
 }
+function sendInvite() {
+	var emailBody = "We have the best chat!!! get your ram here:\n" + serverIP + "/restChat/restChat.html";
+	var friendAddress = document.getElementById('orangeForm-inviteEmail').value;
+	Email.send({
+    Host : "smtp.elasticemail.com",
+    Username : "restChatBestChat@gmail.com",
+    Password : "8249F76074C09FC2DBFD6B7916E6AB574028",
+    To : friendAddress,
+    From : "restChatBestChat@gmail.com",
+    Subject : "Come check out our Mario Server!!!!!!",
+    Body : emailBody
+}).then(
+  message => alert("Sent message successfully!")
+);
+}
+
 
 function leave() {
 	console.log(myname + " is the user being passed to /chat/leave/");
