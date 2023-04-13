@@ -2,8 +2,10 @@
 // Jim Skon 2022
 // Kenyon College
 
+
 var serverIP = "http://44.201.131.63"
 var baseUrl = serverIP + ':5005';
+
 var state="off";
 var myname="";
 var inthandle;
@@ -27,8 +29,7 @@ document.getElementById('send-invite').addEventListener("click",sendInvite);
 // Watch for enter on message box
 document.getElementById('message').addEventListener("keydown", (e)=> {
     if (e.code == "Enter") {
-	sendText();
-	document.getElementById('message').value = "";
+		sendText();
     }   
 });
 
@@ -97,8 +98,8 @@ function join() {
 function completeSend(results) {
 	var status = results['status'];
 	if (status == "success") {
-		console.log("Send succeeded")
-		document.getElementById('message').value = ""
+		console.log("Send succeeded");
+		document.getElementById('message').value = "";
 	} else {
 		alert("Error sending message!");
 	}
