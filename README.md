@@ -1,7 +1,7 @@
 # restChatCpp
 A REST based web chat program using C++
 ## Uses cpp-httplib for the microservice
- - ```https://github.com/yhirose/cpp-httplib```
+ - https://github.com/yhirose/cpp-httplib
  
 ## Install SSL and compression services
  - ```sudo apt-get install libssl-dev```
@@ -22,4 +22,6 @@ A REST based web chat program using C++
  - ```make```
  - ```./restChat```
 
-## Go to your VM URL/namesCpp/namelookup.html
+## Our Servers:
+Sam's VM: http://34.229.136.9/restChat/restChat.html
+Dylan's VM: http://44.201.131.63/restChat/restChat.html
