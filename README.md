@@ -1,5 +1,10 @@
 # restChatCpp
 A REST based web chat program using C++
+
+## Our Servers:
+Sam's VM: http://34.229.136.9/restChat/restChat.html  
+Dylan's VM: http://44.201.131.63/restChat/restChat.html
+
 ## Uses cpp-httplib for the microservice
  - https://github.com/yhirose/cpp-httplib
  
@@ -12,7 +17,7 @@ A REST based web chat program using C++
  - Install the MariaDB connector: https://mariadb.com/docs/skysql/connect/programming-languages/cpp/install/
  
 ## Set Javascript IP address to your VM address
- - Edit ```restChat.js``` so that ```baseUrl``` is your VM's IP address
+ - Edit ```restChat.js``` so that ```serverIP``` contains your VM's IP address
 
 ## Set up App
  - ```sudo mkdir /var/www/html/restChat/```
@@ -21,7 +26,4 @@ A REST based web chat program using C++
 ## Make and run
  - ```make```
  - ```./restChat```
-
-## Our Servers:
-Sam's VM: http://34.229.136.9/restChat/restChat.html  
-Dylan's VM: http://44.201.131.63/restChat/restChat.html
+ 
