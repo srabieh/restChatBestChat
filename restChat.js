@@ -3,7 +3,7 @@
 // Kenyon College
 
 
-var serverIP = "http://44.201.131.63"
+var serverIP = "http://34.229.136.9"
 var baseUrl = serverIP + ':5005';
 
 var state="off";
@@ -164,6 +164,7 @@ function getUsers() {
         {console.log("Something went wrong:"+error);}
     })  
 }
+
 function sendInvite() {
 	var emailBody = "We have the best chat!!! get your ram here:\n" + serverIP + "/restChat/restChat.html";
 	var friendAddress = document.getElementById('orangeForm-inviteEmail').value;
@@ -178,6 +179,22 @@ function sendInvite() {
 }).then(
   message => alert("Sent message successfully!")
 );
+}
+
+function completeHistory() {
+	
+}
+
+function history() {
+	console.log("entered history");
+	fetch(baseUrl+'/chat/history', {
+    	method:'get'
+    })
+    .then(response => response.json() )
+    .then (data => completeHistory(data))
+    .catch(error => {
+    	{console.log("We didn't get chat history: " +error);}
+    })
 }
 
 
@@ -203,9 +220,12 @@ function startSession(name){
     document.getElementById('chatinput').style.display = 'block';
     document.getElementById('status').style.display = 'block';
     document.getElementById('leave').style.display = 'block';
+    
     /* Check for messages every 500 ms */
     inthandle=setInterval(fetchMessage,500);
     usersLoggedIn=setInterval(getUsers,2000);
+    
+    history();
 }
 
 function leaveSession(){

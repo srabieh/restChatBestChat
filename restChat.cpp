@@ -10,6 +10,15 @@
 #include <map>
 #include <algorithm>
 #include "httplib.h"
+#include <mariadb/conncpp.hpp>
+#include "chatUserDB.h"
+#include "chatUserEntry.h"
+//IF EVERYTHING BREAKS: uncomment?
+//#include <sstream>
+//#include <stdexcept>
+#define DB_URL "jdbc:mariadb://localhost:3306/restChatBestChat"
+#define USER "root"
+#define PASS "srabieh"
 
 using namespace httplib;
 using namespace std;
@@ -39,18 +48,27 @@ string getMessagesJSON(string username, map<string,vector<string>> &messageMap) 
 	return result;
 }
 
+
+
+
 int main(void) {
+
+
   Server svr;
   int nextUser=0;
   map<string,vector<string>> messageMap;
   map<string, string> onlineUsers;
-  map<string, string> allUsers;
-  map<string, string> allUsersEmails;
   
-  allUsers["ooniTest"] = "cornflower";
-  allUsers["samTest"] = "yes";
-  allUsers["jimTest"] = "skon";
+// DELETE AFTER PUSHING LAB 3 CHANGES
+//   map<string, string> allUsers;
+//   map<string, string> allUsersEmails;
+//   
+//   allUsers["ooniTest"] = "cornflower";
+//   allUsers["samTest"] = "yes";
+//   allUsers["jimTest"] = "skon";
   
+  //to establish DB connection + send requests: add objects & pull data
+  chatUserDB connChatDB;
   
 	
   /* "/" just returnsAPI name */
@@ -60,21 +78,26 @@ int main(void) {
   });
 
 
+	//logging in
   svr.Get(R"(/chat/join/(.*)/(.*))", [&](const Request& req, Response& res) {
     res.set_header("Access-Control-Allow-Origin","*");
     string username = req.matches[1];
 	string password = req.matches[2];
     string result;
     vector<string> empty;
-    cout << username << " joins" << endl;
+    cout << username << " is trying to log in" << endl;
     
-    // Check if user with this name exists
-    if (password == allUsers[username]) {
+    
+    vector<chatUserEntry> checkUsername = connChatDB.findByUsername(username);
+    
+    
+    // Check if username & password match
+    if (checkUsername[0].getPassword()==password) {
 		// Add user to messages map
 			messageMap[username]=empty;
 			onlineUsers[username]="user logged in";
 			result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
-    	
+			cout<<username<<" logged in successfully\n";
     } else {
 		// if username or password incorrect, do not login user
     	result = "{\"status\":\"failure\"}";
@@ -82,42 +105,59 @@ int main(void) {
     res.set_content(result, "text/json");
   });
   
+  //registering
   svr.Get(R"(/chat/register/(.*)/(.*)/(.*))", [&](const Request& req, Response& res) {
 	res.set_header("Access-Control-Allow-Origin","*");
     string username = req.matches[1];
 	string password = req.matches[2];
 	string email = req.matches[3];
 	cout << username << " " << password << " " << email << endl;
-	string result;
+	string result = "{\"status\":\"failure, status not redefined\"}";
+	cout<<"result is "<<result<<" at the beginning of the register function"<<endl;
 	
-	// ADD: make it so you can't register as a user that already exists
 	
+	bool isUserTaken = false;
 	bool isEmailTaken = false;
+
+	bool passTooShort = false;
+	if (password.length() < 6) {
+		passTooShort = true;
+	}
 	
-	for (auto checkEmails: allUsersEmails) {
-		string currEmail = allUsersEmails[checkEmails.first];
-		if (email==currEmail) {
-			isEmailTaken=true;
+	cout<<"successfully reached line 121\n";
+	int numUserEntries = connChatDB.getNumEntries();
+	cout<<"numUserEntries is "<<numUserEntries<<endl;
+	//int numUserEntriesInt = stoi(numUserEntries);
+	for (int i = 1; i < numUserEntries; i++) {
+		if (passTooShort==true) {
+			result = "{\"status\":\"password short\"}";
+			break;
+		}
+		
+		vector<chatUserEntry> currentEntry = connChatDB.find(to_string(i));
+		if (currentEntry[0].getUsername()==username) {
+			isUserTaken = true;
+			result = "{\"status\":\"name taken\"}";
+			break;
+		} else if (currentEntry[0].getEmail()==email){
+			isEmailTaken = true;
+			result= "{\"status\":\"email taken\"}";
 			break;
 		}
 	}
 	
-	
-	if (allUsers.count(username)) {
-    	result = "{\"status\":\"name taken\"}";
-	} else if (isEmailTaken){
-		result= "{\"status\":\"email taken\"}";
-	} else if (password.length() < 6) {
-		result = "{\"status\":\"password short\"}";
-	} else {
-		allUsers[username] = password;
-		allUsersEmails[username] = email;
+	if (passTooShort==false&&isUserTaken==false&&isEmailTaken==false) {
+		connChatDB.addEntry(username, password, email);
 		result = "{\"status\":\"success\",\"user\":\"" + username + "\"}";
 	}
-    res.set_content(result, "text/json");
+	
+	cout<<"result is "<<result<<endl;
+	
+	res.set_content(result, "text/json");
 	
   });
 
+	//sending
    svr.Get(R"(/chat/send/(.*)/(.*))", [&](const Request& req, Response& res) {
     res.set_header("Access-Control-Allow-Origin","*");
 	string username = req.matches[1];
@@ -144,7 +184,6 @@ int main(void) {
   
 //new stuff: Sam & Dylan
 svr.Get(R"(/chat/list)", [&](const Request& req, Response& res) {
-	
 	res.set_header("Access-Control-Allow-Origin","*");
 	bool start = true;
 	string onlineUsersJSON = "{\"onlineUsers\":[";
@@ -175,6 +214,13 @@ svr.Get(R"(/chat/leave/(.*))", [&](const Request& req, Response& res) {
 	}
 	res.set_content(result, "text/json");
 	
+});
+
+svr.Get(R"(/chat/history)", [&](const Request& req, Response& res) {
+	res.set_header("Access-Control-Allow-Origin","*");
+	string result;
+	
+	res.set_content(result,"text/json");
 });
   
   
