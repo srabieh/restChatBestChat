@@ -23,5 +23,5 @@ A REST based web chat program using C++
  - ```./restChat```
 
 ## Our Servers:
-Sam's VM: http://34.229.136.9/restChat/restChat.html
+Sam's VM: http://34.229.136.9/restChat/restChat.html  
 Dylan's VM: http://44.201.131.63/restChat/restChat.html
