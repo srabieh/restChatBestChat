@@ -144,6 +144,50 @@ int chatUserDB::getNumEntries () {
 	return entries;
 }
 
+void chatUserDB::addDBMessage(string senderUsername, string messageText) {
+	if (!conn) {
+   		cerr << "Invalid database connection" << endl;
+   		exit (EXIT_FAILURE);
+  	}
+	std::auto_ptr<sql::Statement> stmnt(conn->createStatement());
+	sql::ResultSet *res = stmnt->executeQuery("INSERT INTO Messages(Sender, Message) VALUES ('"+ senderUsername+"','"+messageText+"')");
+}
+
+
+//DELETE LATER?
+// int chatUserDB::getNumMessages() {
+// 	if (!conn) {
+//    		cerr << "Invalid database connection" << endl;
+//    		exit (EXIT_FAILURE);
+//   	}
+// 	std::auto_ptr<sql::Statement> stmnt(conn->createStatement());
+// 	sql::ResultSet *res = stmnt->executeQuery("SELECT COUNT(ID) AS msg_count FROM Messages");
+// 	int messages = 0;
+// 	if (res->next()) {
+//   		messages = res->getInt("msg_count");
+// 	}
+// 	
+// 	return messages;
+// }
+
+vector<chatMessage> chatUserDB::getAllDBMessages() {
+	vector<chatMessage> list;
+	
+	if (!conn) {
+   		cerr << "Invalid database connection" << endl;
+   		exit (EXIT_FAILURE);
+  	}
+	
+	std::auto_ptr<sql::Statement> stmnt(conn->createStatement());
+	sql::ResultSet *res = stmnt->executeQuery("SELECT * FROM Messages");
+	
+	while (res->next()) {
+    	chatMessage entry(res->getString("Sender"),res->getString("Message"));
+	    list.push_back(entry);
+    }
+	
+	return list;
+}
 
 //leftovers
 /*

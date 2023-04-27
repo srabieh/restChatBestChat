@@ -181,9 +181,12 @@ function sendInvite() {
 );
 }
 
-function completeHistory() {
-	
-}
+//DELETE LATER?
+// 
+// function completeHistory() {
+// 	//add here
+// 	
+// }
 
 function history() {
 	console.log("entered history");
@@ -191,7 +194,7 @@ function history() {
     	method:'get'
     })
     .then(response => response.json() )
-    .then (data => completeHistory(data))
+    .then (data => completeFetch(data))
     .catch(error => {
     	{console.log("We didn't get chat history: " +error);}
     })

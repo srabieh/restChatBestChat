@@ -16,6 +16,9 @@ all: PutHTML restChat
 
 chatUserEntry.o: chatUserEntry.cpp chatUserEntry.h
 	$(CC) -c $(CFLAGS) chatUserEntry.cpp
+	
+chatMessage.o: chatMessage.cpp chatMessage.h
+	$(CC) -c $(CFLAGS) chatMessage.cpp
 
 chatUserDB.o: chatUserDB.cpp chatUserDB.h
 	$(CC) -c $(CFLAGS) -I/usr/include/cppconn chatUserDB.cpp
@@ -32,8 +35,8 @@ PutHTML:
 	echo "Current contents of your HTML directory: "
 	ls -l /var/www/html/restChat/
 
-restChat : restChat.o chatUserEntry.o chatUserDB.o
-	$(CC) restChat.o chatUserEntry.o chatUserDB.o -o restChat -L/usr/local/lib -lmariadbcpp
+restChat : restChat.o chatUserEntry.o chatUserDB.o chatMessage.o
+	$(CC) restChat.o chatUserEntry.o chatUserDB.o chatMessage.o -o restChat -L/usr/local/lib -lmariadbcpp
 	# $(CXX)  -o restChat $(CXXFLAGS) restChat.cpp $(OPENSSL_SUPPORT) $(ZLIB_SUPPORT) $(BROTLI_SUPPORT) 
 
 clean:

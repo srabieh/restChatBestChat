@@ -24,5 +24,4 @@ private:
 
 };
 
-#endif /* CONTACTENTRY_H */
-
+#endif

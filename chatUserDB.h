@@ -16,6 +16,7 @@
 //#include <cppconn/statement.h>
 //#include <cppconn/prepared_statement.h>
 #include "chatUserEntry.h"
+#include "chatMessage.h"
 
 #ifndef CHATUSERDB_H
 #define CHATUSERDB_H
@@ -42,6 +43,12 @@ public:
     void deleteEntry(string idnum);
     
     int getNumEntries();
+    
+    //chatMessage stuff
+    void addDBMessage(string senderUsername, string messageText);
+   	//DELETE LATER?
+   	//int getNumMessages();
+    vector<chatMessage> getAllDBMessages();
 private:
     const string db_url=DB_URL;
     const string user=USER;

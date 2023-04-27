@@ -13,6 +13,7 @@
 #include <mariadb/conncpp.hpp>
 #include "chatUserDB.h"
 #include "chatUserEntry.h"
+#include "chatMessage.h"
 //IF EVERYTHING BREAKS: uncomment?
 //#include <sstream>
 //#include <stdexcept>
@@ -90,7 +91,6 @@ int main(void) {
     
     vector<chatUserEntry> checkUsername = connChatDB.findByUsername(username);
     
-    
     // Check if username & password match
     if (checkUsername[0].getPassword()==password) {
 		// Add user to messages map
@@ -124,10 +124,14 @@ int main(void) {
 		passTooShort = true;
 	}
 	
+	
 	cout<<"successfully reached line 121\n";
 	int numUserEntries = connChatDB.getNumEntries();
 	cout<<"numUserEntries is "<<numUserEntries<<endl;
 	//int numUserEntriesInt = stoi(numUserEntries);
+	//CHECK LATER: <= num?
+	
+	
 	for (int i = 1; i < numUserEntries; i++) {
 		if (passTooShort==true) {
 			result = "{\"status\":\"password short\"}";
@@ -168,6 +172,7 @@ int main(void) {
     	result = "{\"status\":\"baduser\"}";
 	} else {
 		addMessage(username,message,messageMap);
+		connChatDB.addDBMessage(username, message);
 		result = "{\"status\":\"success\"}";
 	}
     res.set_content(result, "text/json");
@@ -218,8 +223,32 @@ svr.Get(R"(/chat/leave/(.*))", [&](const Request& req, Response& res) {
 
 svr.Get(R"(/chat/history)", [&](const Request& req, Response& res) {
 	res.set_header("Access-Control-Allow-Origin","*");
-	string result;
+	string result = "{\"messages\":[";
 	
+	vector<chatMessage> allDBMessages = connChatDB.getAllDBMessages();
+	
+	cout<<"allDBMessages.size() is "<<allDBMessages.size()<<endl;
+	
+	//CHECK LATER: <= numAll?
+	for (int i = 0; i < allDBMessages.size(); i++) {
+		string author = allDBMessages[i].getSender();
+		string messageContent = allDBMessages[i].getMessage();
+		
+		cout<<"author is "<<author<<endl;
+		cout<<"messageContent is "<<messageContent<<endl;
+		
+		result+="{\"user\":\""+author+"\",\"message\":\""+messageContent+"\"},";
+		
+		cout<<"i = "<<i<<", result = "<<result<<endl;
+	}
+	
+	// Remove the trailing comma after the last message
+    if (allDBMessages.size() > 0) {
+        result.erase(result.size()-1);
+    }
+	
+	result+="]}";
+	cout<<"\nresult is:\n"<<result<<endl<<endl;
 	res.set_content(result,"text/json");
 });
   
